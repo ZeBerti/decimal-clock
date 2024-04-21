@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uhrzeit Umrechner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #clocks {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .clock {
+            margin: 0 20px;
+        }
+        h2 {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Uhrzeit Umrechner</h1>
+    <div id="clocks">
+        <div class="clock" id="normal-time">
+            <h2>Aktuelle Uhrzeit (24-Stunden-Format):</h2>
+            <p id="normal-clock"></p>
+        </div>
+        <div class="clock" id="decimal-time">
+            <h2>Aktuelle Dezimal-Uhrzeit:</h2>
+            <p id="decimal-clock"></p>
+        </div>
+    </div>
+
+    <script>
+        // Der Tag hat 86400 reguläre Sekunden, und 100000 Dezimalsekunden. Jede Sekunde entsprechen 1,1574 Dezimalsekunden
+
+ 	let decimalSecondsFactor = 1.1574;
+
+        function updateClocks() {
+ 	    //let decimalSecondsFactor = 1.1574;
+            // Normale Uhrzeit aktualisieren
+            let now = new Date();
+            let hours = now.getHours().toString().padStart(2, '0');
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let seconds = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('normal-clock').innerText = `${hours}:${minutes}:${seconds}`;
+
+            // Dezimalzeit aktualisieren
+            let decimalHours = (now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600) * 10 / 24;
+            let decimalMinutes = Math.floor((decimalHours - Math.floor(decimalHours)) * 100);
+            decimalHours = Math.floor(decimalHours).toString().padStart(2, '0');
+            decimalMinutes = Math.floor(decimalMinutes).toString().padStart(2, '0');
+
+ 	    let aktuelleTagessekunde = hours * 60 * 60  + minutes * 60 + parseInt(seconds);
+            let dezimalsekunden = Math.round(aktuelleTagessekunde * decimalSecondsFactor);
+	    var startIndex = dezimalsekunden.toString().length - 2;
+	    let decimalSeconds = dezimalsekunden.toString().substring(startIndex);
+            document.getElementById('decimal-clock').innerText = `${decimalHours}:${decimalMinutes}:${decimalSeconds}`;
+          console.log("secs: " + decimalSeconds);
+        }
+
+        // Uhrzeit alle Sekunde aktualisieren
+        setInterval(updateClocks, 1000);
+
+        // Initialisieren
+        updateClocks();
+    </script>
+</body>
+</html>
+
