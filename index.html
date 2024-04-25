@@ -39,38 +39,48 @@
     </div>
 
     <script>
-        // Der Tag hat 86400 reguläre Sekunden, und 100000 Dezimalsekunden. Jede Sekunde entsprechen 1,1574 Dezimalsekunden
+        // Der Tag hat 86_400 reguläre Sekunden, und 100_000 Dezimalsekunden. Jede Sekunde entsprechen 1,1574 Dezimalsekunden
 
- 	let decimalSecondsFactor = 1.1574;
+ 	const decimalSecondsFactor = 100_000 / 86_400;
 
-        function updateClocks() {
- 	    //let decimalSecondsFactor = 1.1574;
+        function initClocks() {
             // Normale Uhrzeit aktualisieren
-            let now = new Date();
+            const now = new Date();
+            update24hClock(now);
+
+            // Dezimalzeit aktualisieren
+            let decimalHours = (now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600) * 10 / 24;
+            decimalHours = Math.floor(decimalHours).toString().padStart(2, '0');
+
+ 	        let aktuelleTagessekunde = now.getHours() * 60 * 60  + now.getMinutes() * 60 + now.getSeconds();
+            let dezimalsekunden = Math.round(aktuelleTagessekunde * decimalSecondsFactor);
+            update10hClock(dezimalsekunden);
+        }
+
+        function update24hClock(now) {
             let hours = now.getHours().toString().padStart(2, '0');
             let minutes = now.getMinutes().toString().padStart(2, '0');
             let seconds = now.getSeconds().toString().padStart(2, '0');
             document.getElementById('normal-clock').innerText = `${hours}:${minutes}:${seconds}`;
 
-            // Dezimalzeit aktualisieren
-            let decimalHours = (now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600) * 10 / 24;
-            let decimalMinutes = Math.floor((decimalHours - Math.floor(decimalHours)) * 100);
-            decimalHours = Math.floor(decimalHours).toString().padStart(2, '0');
-            decimalMinutes = Math.floor(decimalMinutes).toString().padStart(2, '0');
-
- 	    let aktuelleTagessekunde = hours * 60 * 60  + minutes * 60 + parseInt(seconds);
-            let dezimalsekunden = Math.round(aktuelleTagessekunde * decimalSecondsFactor);
-	    var startIndex = dezimalsekunden.toString().length - 2;
-	    let decimalSeconds = dezimalsekunden.toString().substring(startIndex);
-            document.getElementById('decimal-clock').innerText = `${decimalHours}:${decimalMinutes}:${decimalSeconds}`;
-          console.log("secs: " + decimalSeconds);
+            setTimeout(function() {
+                update24hClock(new Date());
+            }, 1000);
         }
 
-        // Uhrzeit alle Sekunde aktualisieren
-        setInterval(updateClocks, 1000);
+        function update10hClock(tagessekundeDezimal) {
+            tagessekundeDezimal = tagessekundeDezimal % 100_000;
+            tagessekundeDezimal = tagessekundeDezimal.toString().padStart(5, '0');
 
-        // Initialisieren
-        updateClocks();
+            const decimalTime = `${tagessekundeDezimal.slice(0, 1)}:${tagessekundeDezimal.slice(1, 3)}:${tagessekundeDezimal.slice(3)}`;
+            document.getElementById('decimal-clock').innerText = decimalTime;
+
+            setTimeout(function() {
+                update10hClock(parseInt(tagessekundeDezimal)+1);
+            }, 1000/decimalSecondsFactor);
+        }
+
+        initClocks();
     </script>
 </body>
 </html>
